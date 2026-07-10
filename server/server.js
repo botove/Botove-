@@ -2,12 +2,16 @@ import express from 'express'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import cors from 'cors'
+import authRoutes from './routes/auth.js'
+import leaderboardRoutes from './routes/leaderboard.js'
+import userRoutes from './routes/user.js'
+import { updateUserStats } from './models/User.js'
 
 const app = express()
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    origin: ['http://localhost:5173', 'http://localhost:3000', process.env.FRONTEND_URL],
     methods: ['GET', 'POST']
   }
 })
@@ -17,14 +21,20 @@ app.use(express.json())
 
 const PORT = process.env.PORT || 3000
 
+// Routes
+app.use('/auth', authRoutes)
+app.use('/leaderboard', leaderboardRoutes)
+app.use('/user', userRoutes)
+
 // Store game sessions and waiting players
 const waitingPlayers = []
 const gameSessions = new Map()
 
 // Player class to manage player data
 class Player {
-  constructor(socketId) {
+  constructor(socketId, userId = null) {
     this.socketId = socketId
+    this.userId = userId
     this.score = 0
     this.board = Array(64).fill(null)
   }
@@ -32,10 +42,10 @@ class Player {
 
 // Game session class
 class GameSession {
-  constructor(player1Id, player2Id) {
+  constructor(player1Id, player2Id, user1Id = null, user2Id = null) {
     this.id = `game_${Date.now()}_${Math.random()}`
-    this.player1 = new Player(player1Id)
-    this.player2 = new Player(player2Id)
+    this.player1 = new Player(player1Id, user1Id)
+    this.player2 = new Player(player2Id, user2Id)
     this.startTime = Date.now()
     this.duration = 60000 // 60 seconds
   }
@@ -54,22 +64,23 @@ class GameSession {
 io.on('connection', (socket) => {
   console.log(`⚡ Player connected: ${socket.id}`)
 
-  socket.on('findMatch', () => {
+  socket.on('findMatch', (data) => {
+    const userId = data?.userId
     console.log(`🔍 ${socket.id} searching for match...`)
 
     if (waitingPlayers.length > 0) {
       // Match found
       const opponent = waitingPlayers.pop()
-      const gameSession = new GameSession(socket.id, opponent.id)
+      const gameSession = new GameSession(socket.id, opponent.socketId, userId, opponent.userId)
       gameSessions.set(gameSession.id, gameSession)
 
-      console.log(`🎮 Match found! ${socket.id} vs ${opponent.id}`)
+      console.log(`🎮 Match found! ${socket.id} vs ${opponent.socketId}`)
 
       // Notify both players
       socket.emit('gameStart', {
         gameId: gameSession.id,
         board: gameSession.player1.board,
-        opponentId: opponent.id
+        opponentId: opponent.socketId
       })
 
       opponent.emit('gameStart', {
@@ -90,6 +101,15 @@ io.on('connection', (socket) => {
           if (game) {
             const winner = game.getWinner()
             console.log(`🏆 Game ${gameSession.id} ended. Winner: ${winner}`)
+
+            // Update user stats if available
+            if (game.player1.userId) {
+              updateUserStats(game.player1.userId, winner === game.player1.socketId, game.player1.score)
+            }
+            if (game.player2.userId) {
+              updateUserStats(game.player2.userId, winner === game.player2.socketId, game.player2.score)
+            }
+
             io.to(gameSession.id).emit('gameEnd', {
               winner: winner,
               player1Score: game.player1.score,
@@ -106,7 +126,7 @@ io.on('connection', (socket) => {
       }, 500)
     } else {
       // Add to waiting queue
-      waitingPlayers.push(socket)
+      waitingPlayers.push({ socketId: socket.id, userId: userId })
       console.log(`⏳ ${socket.id} added to queue. Waiting players: ${waitingPlayers.length}`)
     }
   })
@@ -131,7 +151,7 @@ io.on('connection', (socket) => {
     if (playerGame) {
       const player = isPlayer1 ? playerGame.player1 : playerGame.player2
       player.score = data.score
-      player.board[data.boardIndex] = true // Mark position as filled
+      player.board[data.boardIndex] = true
 
       // Broadcast score update
       io.to(playerGame.id).emit('scoreUpdate', {
@@ -145,7 +165,7 @@ io.on('connection', (socket) => {
     console.log(`❌ Player disconnected: ${socket.id}`)
 
     // Remove from waiting queue
-    const index = waitingPlayers.findIndex(p => p.id === socket.id)
+    const index = waitingPlayers.findIndex(p => p.socketId === socket.id)
     if (index !== -1) {
       waitingPlayers.splice(index, 1)
     }

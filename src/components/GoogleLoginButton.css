@@ -1,0 +1,21 @@
+.google-login-button {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-btn-fallback {
+  padding: 12px 24px;
+  background: #999;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: not-allowed;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.google-login-button :global(.g_id_signin) {
+  width: 100%;
+  max-width: 300px;
+}
