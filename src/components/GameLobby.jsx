@@ -1,6 +1,6 @@
 import './GameLobby.css'
 
-const GameLobby = ({ onPlay }) => {
+const GameLobby = ({ onPlayMultiplayer, onPlayPractice }) => {
   return (
     <div className="lobby">
       <div className="lobby-content">
@@ -14,9 +14,14 @@ const GameLobby = ({ onPlay }) => {
           <p>Battle rivals for 60 seconds</p>
         </div>
 
-        <button className="play-btn" onClick={onPlay}>
-          Find a Match
-        </button>
+        <div className="button-group">
+          <button className="play-btn multiplayer-btn" onClick={onPlayMultiplayer}>
+            🎮 Multiplayer
+          </button>
+          <button className="play-btn practice-btn" onClick={onPlayPractice}>
+            🤖 Practice Mode
+          </button>
+        </div>
 
         <div className="features">
           <div className="feature">
