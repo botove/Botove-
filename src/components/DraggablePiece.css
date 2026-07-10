@@ -1,0 +1,44 @@
+.draggable-piece {
+  position: fixed;
+  width: 70px;
+  height: 70px;
+  border-radius: 14px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  cursor: grab;
+  transition: transform 0.05s linear, box-shadow 0.2s ease;
+  z-index: 1000;
+  top: 50%;
+  left: 50%;
+  margin-left: -35px;
+  margin-top: -35px;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+.draggable-piece:active,
+.draggable-piece.dragging {
+  cursor: grabbing;
+  z-index: 1001;
+}
+
+@media (max-width: 768px) {
+  .draggable-piece {
+    width: 60px;
+    height: 60px;
+    margin-left: -30px;
+    margin-top: -30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .draggable-piece {
+    width: 50px;
+    height: 50px;
+    margin-left: -25px;
+    margin-top: -25px;
+    border-radius: 10px;
+    border-width: 2px;
+  }
+}

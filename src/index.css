@@ -1,0 +1,30 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1a0033 0%, #2d0052 100%);
+  color: #fff;
+  min-height: 100vh;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+/* Jelly Block color palette */
+:root {
+  --jelly-red: #FF4444;
+  --jelly-orange: #FF9944;
+  --jelly-green: #CCFF00;
+  --jelly-purple: #BB00FF;
+  --jelly-blue: #00CCFF;
+  --jelly-pink: #FF1493;
+  --jelly-yellow: #FFDD00;
+  --neon-glow: 0 0 20px;
+  --shadow-elevation: 0 8px 32px rgba(0, 0, 0, 0.3);
+}

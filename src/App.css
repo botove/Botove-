@@ -1,0 +1,108 @@
+.app {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #1a0033 0%, #2d0052 100%);
+}
+
+.game-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  gap: 30px;
+}
+
+.results-screen {
+  text-align: center;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.results-screen h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #FF9944 0%, #BB00FF 50%, #00CCFF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(187, 0, 255, 0.3);
+}
+
+.results-scores {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.result-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 30px;
+  border: 3px solid rgba(187, 0, 255, 0.5);
+  border-radius: 20px;
+  background: rgba(45, 0, 82, 0.5);
+}
+
+.result-item span:first-child {
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+.result-item .score {
+  font-size: 48px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #FFDD00 0%, #FF9944 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.winner-text {
+  font-size: 24px;
+  margin: 10px 0;
+  color: #00CCFF;
+  text-shadow: 0 0 20px rgba(0, 204, 255, 0.4);
+}
+
+.play-again-btn {
+  padding: 15px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #FF9944 0%, #BB00FF 100%);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--neon-glow) rgba(187, 0, 255, 0.5);
+  margin-top: 10px;
+}
+
+.play-again-btn:hover {
+  transform: scale(1.05);
+  box-shadow: var(--neon-glow) rgba(187, 0, 255, 0.8);
+}
+
+@media (max-width: 768px) {
+  .game-container {
+    gap: 20px;
+  }
+
+  .results-scores {
+    gap: 30px;
+    flex-direction: column;
+  }
+}
