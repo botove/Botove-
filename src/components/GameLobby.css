@@ -49,25 +49,46 @@
   letter-spacing: 1px;
 }
 
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
 .play-btn {
   padding: 18px 50px;
   font-size: 20px;
   font-weight: bold;
   border: none;
   border-radius: 50px;
-  background: linear-gradient(135deg, #FF9944 0%, #BB00FF 50%, #00CCFF 100%);
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 0 40px rgba(187, 0, 255, 0.4), 0 0 80px rgba(255, 153, 68, 0.2);
   letter-spacing: 2px;
   text-transform: uppercase;
-  min-width: 300px;
+  min-width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.play-btn:hover {
+.multiplayer-btn {
+  background: linear-gradient(135deg, #FF9944 0%, #BB00FF 50%, #00CCFF 100%);
+  box-shadow: 0 0 40px rgba(187, 0, 255, 0.4), 0 0 80px rgba(255, 153, 68, 0.2);
+}
+
+.multiplayer-btn:hover {
   transform: scale(1.05) translateY(-2px);
   box-shadow: 0 0 60px rgba(187, 0, 255, 0.6), 0 0 120px rgba(255, 153, 68, 0.3);
+}
+
+.practice-btn {
+  background: linear-gradient(135deg, #CCFF00 0%, #FF1493 50%, #00CCFF 100%);
+  box-shadow: 0 0 40px rgba(204, 255, 0, 0.3), 0 0 80px rgba(0, 204, 255, 0.2);
+}
+
+.practice-btn:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 0 60px rgba(204, 255, 0, 0.5), 0 0 120px rgba(0, 204, 255, 0.3);
 }
 
 .play-btn:active {
@@ -112,9 +133,12 @@
   }
 
   .play-btn {
-    min-width: 200px;
     padding: 15px 40px;
-    font-size: 18px;
+    font-size: 16px;
+  }
+
+  .button-group {
+    gap: 12px;
   }
 
   .features {

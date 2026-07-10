@@ -1,6 +1,6 @@
 import './ScoreBoard.css'
 
-const ScoreBoard = ({ playerScore, rivalScore, timeRemaining }) => {
+const ScoreBoard = ({ playerScore, rivalScore, timeRemaining, gameMode }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
@@ -16,11 +16,11 @@ const ScoreBoard = ({ playerScore, rivalScore, timeRemaining }) => {
 
       <div className="timer-section">
         <div className="time-display">{formatTime(timeRemaining)}</div>
-        <div className="time-label">RIVAL — LIVE</div>
+        <div className="time-label">{gameMode === 'practice' ? 'BOT' : 'RIVAL'} — LIVE</div>
       </div>
 
       <div className="score-section rival-section">
-        <div className="label">RIVAL</div>
+        <div className="label">{gameMode === 'practice' ? 'BOT' : 'RIVAL'}</div>
         <div className="score">{rivalScore}</div>
       </div>
     </div>
