@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import { io } from 'socket.io-client'
 import GameBoard from './components/GameBoard'
 import GameLobby from './components/GameLobby'
+import LoginScreen from './components/LoginScreen'
 import ScoreBoard from './components/ScoreBoard'
 import './App.css'
 
 function App() {
   const [socket, setSocket] = useState(null)
-  const [gameState, setGameState] = useState('lobby') // 'lobby', 'playing', 'results'
+  const [gameState, setGameState] = useState('login') // 'login', 'lobby', 'playing', 'results'
   const [playerScore, setPlayerScore] = useState(0)
   const [rivalScore, setRivalScore] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(60)
@@ -15,6 +16,7 @@ function App() {
   const [gameId, setGameId] = useState(null)
   const [gameMode, setGameMode] = useState(null) // 'multiplayer', 'practice'
   const [botTimer, setBotTimer] = useState(null)
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
     // Initialize socket connection
@@ -65,9 +67,34 @@ function App() {
     }
   }, [])
 
+  const handleLoginSuccess = (credentialResponse) => {
+    // Decode the JWT token to get user info
+    try {
+      const base64Url = credentialResponse.credential.split('.')[1]
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      }).join(''))
+      const userData = JSON.parse(jsonPayload)
+      setUser(userData)
+      setGameState('lobby')
+    } catch (error) {
+      console.error('Error decoding token:', error)
+    }
+  }
+
+  const handleLogout = () => {
+    setUser(null)
+    setGameState('login')
+    if (botTimer) {
+      clearInterval(botTimer)
+      setBotTimer(null)
+    }
+  }
+
   const handlePlayMultiplayer = () => {
     if (socket) {
-      socket.emit('findMatch')
+      socket.emit('findMatch', { user })
     }
   }
 
@@ -140,8 +167,16 @@ function App() {
 
   return (
     <div className="app">
+      {gameState === 'login' && (
+        <LoginScreen onLoginSuccess={handleLoginSuccess} />
+      )}
       {gameState === 'lobby' && (
-        <GameLobby onPlayMultiplayer={handlePlayMultiplayer} onPlayPractice={handlePlayPractice} />
+        <GameLobby 
+          onPlayMultiplayer={handlePlayMultiplayer} 
+          onPlayPractice={handlePlayPractice}
+          user={user}
+          onLogout={handleLogout}
+        />
       )}
       {gameState === 'playing' && (
         <div className="game-container">
