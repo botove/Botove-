@@ -13,6 +13,8 @@ function App() {
   const [timeRemaining, setTimeRemaining] = useState(60)
   const [gameData, setGameData] = useState(null)
   const [gameId, setGameId] = useState(null)
+  const [gameMode, setGameMode] = useState(null) // 'multiplayer', 'practice'
+  const [botTimer, setBotTimer] = useState(null)
 
   useEffect(() => {
     // Initialize socket connection
@@ -31,6 +33,7 @@ function App() {
       console.log('Game started:', data)
       setGameId(data.gameId)
       setGameState('playing')
+      setGameMode('multiplayer')
       setTimeRemaining(60)
       setPlayerScore(0)
       setRivalScore(0)
@@ -62,15 +65,41 @@ function App() {
     }
   }, [])
 
-  const handlePlayGame = () => {
+  const handlePlayMultiplayer = () => {
     if (socket) {
       socket.emit('findMatch')
     }
   }
 
+  const handlePlayPractice = () => {
+    setGameMode('practice')
+    setGameState('playing')
+    setTimeRemaining(60)
+    setPlayerScore(0)
+    setRivalScore(0)
+    setGameData({ board: Array(64).fill(null) })
+    setGameId(`practice_${Date.now()}`)
+
+    // Start bot logic
+    startBotGame()
+  }
+
+  const startBotGame = () => {
+    // Bot makes random moves
+    const timer = setInterval(() => {
+      setRivalScore(prev => {
+        const newScore = prev + Math.floor(Math.random() * 15)
+        return newScore
+      })
+    }, 2000 + Math.random() * 3000) // Bot places piece every 2-5 seconds
+
+    setBotTimer(timer)
+  }
+
   const handlePiecePlace = (boardIndex) => {
-    if (socket && gameId) {
-      setPlayerScore(prev => prev + 10) // Award points for placing
+    setPlayerScore(prev => prev + 10)
+
+    if (gameMode === 'multiplayer' && socket && gameId) {
       socket.emit('placePiece', {
         gameId,
         boardIndex,
@@ -80,13 +109,39 @@ function App() {
   }
 
   const handlePlayAgain = () => {
+    if (botTimer) {
+      clearInterval(botTimer)
+      setBotTimer(null)
+    }
     setGameState('lobby')
+    setGameMode(null)
   }
+
+  useEffect(() => {
+    if (gameState !== 'playing') return
+
+    const timer = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          setGameState('results')
+          if (botTimer) {
+            clearInterval(botTimer)
+            setBotTimer(null)
+          }
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [gameState, botTimer])
 
   return (
     <div className="app">
       {gameState === 'lobby' && (
-        <GameLobby onPlay={handlePlayGame} />
+        <GameLobby onPlayMultiplayer={handlePlayMultiplayer} onPlayPractice={handlePlayPractice} />
       )}
       {gameState === 'playing' && (
         <div className="game-container">
@@ -94,6 +149,7 @@ function App() {
             playerScore={playerScore}
             rivalScore={rivalScore}
             timeRemaining={timeRemaining}
+            gameMode={gameMode}
           />
           <GameBoard 
             onPiecePlace={handlePiecePlace}
@@ -111,7 +167,7 @@ function App() {
               <span className="score">{playerScore}</span>
             </div>
             <div className="result-item">
-              <span>Rival Score</span>
+              <span>{gameMode === 'practice' ? 'Bot' : 'Rival'} Score</span>
               <span className="score">{rivalScore}</span>
             </div>
           </div>
