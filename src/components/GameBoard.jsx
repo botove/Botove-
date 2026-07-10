@@ -1,13 +1,16 @@
-import { useState, useEffect, useRef } from 'react'
-import DraggablePiece from './DraggablePiece'
-import './GameBoard.css'
+import { useState, useEffect, useRef } from 'react';
+import DraggablePiece from './DraggablePiece';
+import JokeButton from './JokeButton';
+import JokeGenerator from './JokeGenerator';
+import './GameBoard.css';
 
 const GameBoard = ({ onPiecePlace, gameData, socket }) => {
-  const BOARD_SIZE = 8
-  const [board, setBoard] = useState(Array(64).fill(null))
-  const [currentPiece, setCurrentPiece] = useState(null)
-  const boardRef = useRef(null)
-  const containerRef = useRef(null)
+  const BOARD_SIZE = 8;
+  const [board, setBoard] = useState(Array(64).fill(null));
+  const [currentPiece, setCurrentPiece] = useState(null);
+  const [showJokes, setShowJokes] = useState(false);
+  const boardRef = useRef(null);
+  const containerRef = useRef(null);
 
   const colors = [
     '#FF4444', // red
@@ -17,36 +20,41 @@ const GameBoard = ({ onPiecePlace, gameData, socket }) => {
     '#00CCFF', // blue
     '#FFDD00', // yellow
     '#FF1493'  // pink
-  ]
+  ];
 
   useEffect(() => {
-    if (!gameData) return
-    setBoard(gameData.board || Array(64).fill(null))
-    generateNewPiece()
-  }, [gameData])
+    if (!gameData) return;
+    setBoard(gameData.board || Array(64).fill(null));
+    generateNewPiece();
+  }, [gameData]);
 
   const generateNewPiece = () => {
-    const color = colors[Math.floor(Math.random() * colors.length)]
+    const color = colors[Math.floor(Math.random() * colors.length)];
     setCurrentPiece({
       color,
       id: Math.random(),
       x: 0,
       y: 0
-    })
-  }
+    });
+  };
 
   const handlePieceDrop = (boardIndex) => {
     if (boardIndex >= 0 && boardIndex < 64 && board[boardIndex] === null && currentPiece) {
-      const newBoard = [...board]
-      newBoard[boardIndex] = currentPiece.color
-      setBoard(newBoard)
-      onPiecePlace(boardIndex)
-      generateNewPiece()
+      const newBoard = [...board];
+      newBoard[boardIndex] = currentPiece.color;
+      setBoard(newBoard);
+      onPiecePlace(boardIndex);
+      generateNewPiece();
     }
-  }
+  };
 
   return (
     <div className="game-board-wrapper" ref={containerRef}>
+      <div className="game-board-header">
+        <h3>Game Board</h3>
+        <JokeButton onClick={() => setShowJokes(true)} />
+      </div>
+
       <div className="game-board" ref={boardRef}>
         {board.map((cell, index) => (
           <div
@@ -76,8 +84,10 @@ const GameBoard = ({ onPiecePlace, gameData, socket }) => {
       <div className="controls-hint">
         <p>Drag the block to place it • Tap to drop</p>
       </div>
-    </div>
-  )
-}
 
-export default GameBoard
+      {showJokes && <JokeGenerator onClose={() => setShowJokes(false)} />}
+    </div>
+  );
+};
+
+export default GameBoard;

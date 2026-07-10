@@ -1,91 +1,79 @@
 .game-board-wrapper {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 30px;
   width: 100%;
-  max-width: 450px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.game-board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 12px;
+}
+
+.game-board-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .game-board {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  grid-gap: 8px;
-  padding: 20px;
-  background: radial-gradient(circle at center, rgba(50, 0, 100, 0.5) 0%, rgba(20, 0, 40, 0.8) 100%);
-  border: 3px solid rgba(187, 0, 255, 0.4);
-  border-radius: 20px;
-  width: 100%;
+  grid-template-rows: repeat(8, 1fr);
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  border-radius: 12px;
   aspect-ratio: 1;
-  box-shadow: 0 0 40px rgba(187, 0, 255, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.5);
-  position: relative;
+  max-width: 600px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 8px 16px rgba(0, 0, 0, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.1);
 }
 
 .cell {
-  aspect-ratio: 1;
-  border-radius: 12px;
-  border: 2px solid rgba(187, 0, 255, 0.3);
-  cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  cursor: grab;
   transition: all 0.2s ease;
-  background: rgba(30, 10, 60, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
   position: relative;
 }
 
-.cell:hover:not(.filled) {
-  border-color: rgba(187, 0, 255, 0.6);
-  background: rgba(40, 15, 80, 0.8);
+.cell:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .cell.filled {
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  position: relative;
-  overflow: hidden;
+  cursor: default;
 }
 
-.cell.filled::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
-  animation: shine 2s infinite;
-}
-
-@keyframes shine {
-  0%, 100% {
-    transform: translate(-100%, -100%) rotate(45deg);
-  }
-  50% {
-    transform: translate(100%, 100%) rotate(45deg);
-  }
+.cell.filled:hover {
+  background: inherit;
 }
 
 .controls-hint {
-  font-size: 13px;
-  color: #999;
   text-align: center;
-  padding: 10px 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin-top: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
 }
 
-@media (max-width: 480px) {
+.controls-hint p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
   .game-board {
-    max-width: 320px;
-    grid-gap: 6px;
-    padding: 15px;
+    padding: 8px;
+    gap: 1px;
   }
 
-  .controls-hint {
-    font-size: 11px;
+  .cell {
+    border-radius: 4px;
   }
 }

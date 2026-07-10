@@ -1,142 +1,68 @@
-import { useState, useEffect } from 'react'
-import { io } from 'socket.io-client'
-import GameBoard from './components/GameBoard'
-import GameLobby from './components/GameLobby'
-import ScoreBoard from './components/ScoreBoard'
-import './App.css'
+import { useState } from 'react';
+import { io } from 'socket.io-client';
+import GameBoard from './components/GameBoard';
+import GameLobby from './components/GameLobby';
+import ScoreBoard from './components/ScoreBoard';
+import './App.css';
 
 function App() {
-  const [socket, setSocket] = useState(null)
-  const [gameState, setGameState] = useState('lobby') // 'lobby', 'playing', 'results'
-  const [playerScore, setPlayerScore] = useState(0)
-  const [rivalScore, setRivalScore] = useState(0)
-  const [timeRemaining, setTimeRemaining] = useState(60)
-  const [gameData, setGameData] = useState(null)
-  const [gameId, setGameId] = useState(null)
-  const [gameMode, setGameMode] = useState(null) // 'multiplayer', 'practice'
-  const [botTimer, setBotTimer] = useState(null)
-
-  useEffect(() => {
-    // Initialize socket connection
-    const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000', {
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      reconnectionAttempts: 5
-    })
-
-    newSocket.on('connect', () => {
-      console.log('Connected to server')
-    })
-
-    newSocket.on('gameStart', (data) => {
-      console.log('Game started:', data)
-      setGameId(data.gameId)
-      setGameState('playing')
-      setGameMode('multiplayer')
-      setTimeRemaining(60)
-      setPlayerScore(0)
-      setRivalScore(0)
-      setGameData(data)
-    })
-
-    newSocket.on('scoreUpdate', (data) => {
-      setPlayerScore(data.playerScore)
-      setRivalScore(data.rivalScore)
-    })
-
-    newSocket.on('gameEnd', (data) => {
-      console.log('Game ended:', data)
-      setGameState('results')
-    })
-
-    newSocket.on('timeUpdate', (data) => {
-      setTimeRemaining(data.timeRemaining)
-    })
-
-    newSocket.on('disconnect', () => {
-      console.log('Disconnected from server')
-    })
-
-    setSocket(newSocket)
-
-    return () => {
-      newSocket.disconnect()
-    }
-  }, [])
+  const [socket, setSocket] = useState(null);
+  const [gameState, setGameState] = useState('lobby'); // 'lobby', 'playing', 'results'
+  const [playerScore, setPlayerScore] = useState(0);
+  const [rivalScore, setRivalScore] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(60);
+  const [gameData, setGameData] = useState(null);
+  const [gameId, setGameId] = useState(null);
+  const [gameMode, setGameMode] = useState(null); // 'multiplayer', 'practice'
+  const [botTimer, setBotTimer] = useState(null);
 
   const handlePlayMultiplayer = () => {
     if (socket) {
-      socket.emit('findMatch')
+      socket.emit('findMatch');
     }
-  }
+  };
 
   const handlePlayPractice = () => {
-    setGameMode('practice')
-    setGameState('playing')
-    setTimeRemaining(60)
-    setPlayerScore(0)
-    setRivalScore(0)
-    setGameData({ board: Array(64).fill(null) })
-    setGameId(`practice_${Date.now()}`)
-
-    // Start bot logic
-    startBotGame()
-  }
+    setGameMode('practice');
+    setGameState('playing');
+    setTimeRemaining(60);
+    setPlayerScore(0);
+    setRivalScore(0);
+    setGameData({ board: Array(64).fill(null) });
+    setGameId(`practice_${Date.now()}`);
+    startBotGame();
+  };
 
   const startBotGame = () => {
-    // Bot makes random moves
     const timer = setInterval(() => {
-      setRivalScore(prev => {
-        const newScore = prev + Math.floor(Math.random() * 15)
-        return newScore
-      })
-    }, 2000 + Math.random() * 3000) // Bot places piece every 2-5 seconds
-
-    setBotTimer(timer)
-  }
+      setRivalScore((prev) => {
+        const newScore = prev + Math.floor(Math.random() * 15);
+        return newScore;
+      });
+    }, 2000 + Math.random() * 3000);
+    setBotTimer(timer);
+  };
 
   const handlePiecePlace = (boardIndex) => {
-    setPlayerScore(prev => prev + 10)
+    setPlayerScore((prev) => prev + 10);
 
     if (gameMode === 'multiplayer' && socket && gameId) {
       socket.emit('placePiece', {
         gameId,
         boardIndex,
         score: playerScore + 10
-      })
+      });
     }
-  }
+  };
 
   const handlePlayAgain = () => {
     if (botTimer) {
-      clearInterval(botTimer)
-      setBotTimer(null)
+      clearInterval(botTimer);
+      setBotTimer(null);
     }
-    setGameState('lobby')
-    setGameMode(null)
-  }
-
-  useEffect(() => {
-    if (gameState !== 'playing') return
-
-    const timer = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          setGameState('results')
-          if (botTimer) {
-            clearInterval(botTimer)
-            setBotTimer(null)
-          }
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [gameState, botTimer])
+    setGameState('lobby');
+    setGameMode(null);
+  };
 
   return (
     <div className="app">
@@ -145,13 +71,13 @@ function App() {
       )}
       {gameState === 'playing' && (
         <div className="game-container">
-          <ScoreBoard 
+          <ScoreBoard
             playerScore={playerScore}
             rivalScore={rivalScore}
             timeRemaining={timeRemaining}
             gameMode={gameMode}
           />
-          <GameBoard 
+          <GameBoard
             onPiecePlace={handlePiecePlace}
             gameData={gameData}
             socket={socket}
@@ -180,7 +106,7 @@ function App() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
